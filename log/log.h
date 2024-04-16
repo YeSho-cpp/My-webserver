@@ -59,8 +59,8 @@ private:
 
 
 #define LOG_DEBUG(foramt,...) if(m_close_log==0) { Log::get_instance()->write_log(0,foramt, ##__VA_ARGS__); Log::get_instance()->flush();};
-#define LOG_INFO(foramt,...) if(m_close_log==0) { Log::get_instance()->write_log(1,foramt, __VA_ARGS__); Log::get_instance()->flush();};
-#define LOG_WARN(foramt,...) if(m_close_log==0) { Log::get_instance()->write_log(2,foramt, __VA_ARGS__); Log::get_instance()->flush();};
-#define LOG_ERROR(foramt,...) if(m_close_log==0) { Log::get_instance()->write_log(3,foramt, __VA_ARGS__); Log::get_instance()->flush();};
+#define LOG_INFO(foramt,...) if(m_close_log==0) { Log::get_instance()->write_log(1,foramt, ##__VA_ARGS__); Log::get_instance()->flush();};
+#define LOG_WARN(foramt,...) if(m_close_log==0) { Log::get_instance()->write_log(2,foramt, ##__VA_ARGS__); Log::get_instance()->flush();};
+#define LOG_ERROR(foramt,...) if(m_close_log==0) { Log::get_instance()->write_log(3,foramt, ##__VA_ARGS__); Log::get_instance()->flush();};
 
 #endif//WEBSERVER_LOG_H
