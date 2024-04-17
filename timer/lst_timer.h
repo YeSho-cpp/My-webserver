@@ -10,7 +10,6 @@
 #include <sys/epoll.h>
 #include <sys/fcntl.h>
 #include <cstring>
-#include <bits/sigaction.h>
 #include <csignal>
 #include <cassert>
 
