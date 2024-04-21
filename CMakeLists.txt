@@ -21,7 +21,9 @@ add_executable(Webserver ${SRC_LIST}
         CGlmysql/sql_connection_pool.cpp
         timer/lst_timer.h
         timer/lst_timer.cpp
-        threadpool/threadpool.h)
+        threadpool/threadpool.h
+        http/http_conn.h
+        http/http_conn.cpp)
 
 # 添加 MySQL 客户端库的链接指令
 link_directories(/usr/lib/x86_64-linux-gnu)  # 添加 MySQL 库文件路径

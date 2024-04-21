@@ -2,6 +2,7 @@
 // Created by YeSho on 2024/4/16.
 //
 #include "lst_timer.h"
+#include "../http/http_conn.h"
 #include <cerrno>
 
 
@@ -193,6 +194,7 @@ void cb_func(client_data *uer_data){
   assert(uer_data);
   close(uer_data->sockfd);
   // 后面补充
+  http_conn::m_user_count--;
 }
 time_wheel::~time_wheel() {
   /*遍历每个槽，并销毁其中的定时器*/

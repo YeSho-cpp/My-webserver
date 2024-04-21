@@ -47,7 +47,31 @@ void thread_pool<T>::run() {
     m_queue_locker.unlock();
     if(!request) continue;
     // 需要补充
+    if(m_actor_mode==1){ // reator模式
+      if(request->m_state==0){ // 读模式
+        if(request->read_once()){
+          request->improv=1;
+          connection_poolRAII mysqlconn(&request->mysql,m_connPool);
+          request->process();
+        }else{
+          request->improv=1;
+          request->timer_flag=1;
+        }
 
+      }
+      else{ // 写模式
+        if(request->write()){
+          request->improv=1;
+        }else{
+          request->improv=1;
+          request->timer_flag=1;
+        }
+      }
+    }
+    else { // Proactor模式
+      connection_poolRAII mysqlconn(&request->mysql,m_connPool);
+      request->process();
+    }
   }
 }
 
