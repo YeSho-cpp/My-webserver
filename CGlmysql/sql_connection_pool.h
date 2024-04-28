@@ -8,6 +8,7 @@
 #include "../lock/lock.h"
 #include <list>
 #include <mysql/mysql.h>
+
 using namespace std;
 class connection_pool{
 
@@ -31,10 +32,10 @@ public:
 private:
   int m_free_con; // 空闲连接数
   int m_cur_con; // 正在使用的连接数
-  int m_max_con{}; // 最大连接数
+  int m_max_con; // 最大连接数
   list<MYSQL *>connList;
   locker lock;
-  sem_t reserve{};
+  sem reserve{};
   connection_pool();
   ~connection_pool();
 };

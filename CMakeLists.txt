@@ -4,8 +4,10 @@ project(Webserver)
 # 设置 C++ 标准
 set(CMAKE_CXX_STANDARD 17)
 
+# 设置输出目录为项目根目录下的 Webserver 文件夹
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
+
 # 包含头文件目录
-include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(/usr/include/mysql)  # 添加 MySQL 头文件的路径
 
 # 所有源文件
@@ -22,8 +24,12 @@ add_executable(Webserver ${SRC_LIST}
         timer/lst_timer.h
         timer/lst_timer.cpp
         threadpool/threadpool.h
-        http/http_conn.h
-        http/http_conn.cpp)
+        server/webserver.h
+        server/webserver.cpp
+        http/http_conn.cpp
+        server/webserver.cpp
+        config/config.cpp
+)
 
 # 添加 MySQL 客户端库的链接指令
 link_directories(/usr/lib/x86_64-linux-gnu)  # 添加 MySQL 库文件路径

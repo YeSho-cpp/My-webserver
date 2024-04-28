@@ -3,7 +3,7 @@
 //
 #include "http_conn.h"
 
-int http_conn::m_use_count=0;
+int http_conn::m_user_count=0;
 int http_conn::m_epoll_fd=-1;
 
 const char *ok_200_title = "OK";
@@ -71,7 +71,7 @@ void http_conn::init(int sockfd, const sockaddr_in &addr, char *root, int TRIGMo
   m_address=addr;
   m_close_log=close_log;
   addfd(m_epoll_fd,m_sock_fd,true,TRIGMode);
-  m_use_count++;
+  m_user_count++;
   doc_root=root;
   strcpy(sql_user,user.c_str());
   strcpy(sql_password,passwd.c_str());
@@ -106,9 +106,9 @@ void http_conn::reset() { // 主要进行私有无参的重置  在我们发送�
   timer_flag=0;
   improv=0;
 
-  memset(m_read_buf,'\n',READ_BUFFER_SIZE);
-  memset(m_write_buf,'\n',WRITE_BUFFER_SIZE);
-  memset(m_real_file,'\n',FILENAME_LEN);
+  memset(m_read_buf,'\0',READ_BUFFER_SIZE);
+  memset(m_write_buf,'\0',WRITE_BUFFER_SIZE);
+  memset(m_real_file,'\0',FILENAME_LEN);
 
 }
 //关闭连接，关闭一个连接，客户总量减一
@@ -116,7 +116,7 @@ void http_conn::close_conn(bool real_close) {
   if(real_close&&m_sock_fd!=-1){
     printf("close %d\n",m_sock_fd);
     remove_fd(m_epoll_fd,m_sock_fd);
-    m_use_count--;
+    m_user_count--;
     m_sock_fd=-1;
   }
 }
@@ -258,7 +258,6 @@ http_conn::HTTP_CODE http_conn::parse_headers(char *text) {
   else
   {
     LOG_INFO("oop!unknown header: %s", text)
-    return BAD_REQUEST;
   }
   return NO_REQUEST;
 }
@@ -388,7 +387,6 @@ http_conn::HTTP_CODE http_conn::do_request() {
     char *m_url_real = (char *)malloc(sizeof(char) * 200);
     strcpy(m_url_real, "/register.html");
     strncpy(m_real_file + len, m_url_real, strlen(m_url_real));
-
     free(m_url_real);
   }
   else if (*(p + 1) == '1')
@@ -396,7 +394,6 @@ http_conn::HTTP_CODE http_conn::do_request() {
     char *m_url_real = (char *)malloc(sizeof(char) * 200);
     strcpy(m_url_real, "/log.html");
     strncpy(m_real_file + len, m_url_real, strlen(m_url_real));
-
     free(m_url_real);
   }
   else if (*(p + 1) == '5')
@@ -424,10 +421,17 @@ http_conn::HTTP_CODE http_conn::do_request() {
     free(m_url_real);
   }
   else
+  {
     strncpy(m_real_file + len, m_url, FILENAME_LEN - len - 1);
+  }
+
 
   if (stat(m_real_file, &m_file_stat) < 0)
+  {
+
     return NO_RESOURCE;
+  }
+
 
   if (!(m_file_stat.st_mode & S_IROTH))  // S_IROTH，即是否设置了其他（other）用户的读权限
     return FORBIDDEN_REQUEST;
@@ -465,7 +469,7 @@ bool http_conn::add_status_line(int status, const char *title) {
   return add_response("%s %d %s\r\n", "HTTP/1.1", status, title);
 }
 bool http_conn::add_headers(int content_length) {
-  return add_content_length(content_length) && add_linger() &&  add_blank_line() &&add_content_type();
+  return add_content_length(content_length) && add_linger() &&  add_blank_line();
 }
 bool http_conn::add_content_type() {
   return add_response("Content-Type:%s\r\n", "text/html");
@@ -486,6 +490,7 @@ bool http_conn::process_write(http_conn::HTTP_CODE ret) {
     {
       add_status_line(500, error_500_title);
       add_headers(strlen(error_500_form));
+
       if (!add_content(error_500_form))
         return false;
       break;
@@ -528,8 +533,10 @@ bool http_conn::process_write(http_conn::HTTP_CODE ret) {
           return false;
       }
     }
-    default:
+    default:{
       return false;
+    }
+
   }
   m_iv[0].iov_base = m_write_buf;
   m_iv[0].iov_len = m_write_idx;
@@ -544,6 +551,7 @@ void http_conn::process() {
     return;
   }
   bool write_ret= process_write(read_ret);
+
   if(!write_ret){
     close_conn();
   }

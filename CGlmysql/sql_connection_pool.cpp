@@ -26,19 +26,20 @@ void connection_pool::init(string url, int port, string user, string password, s
 
     if(con== nullptr){
       LOG_ERROR("MySQL Error");
+      exit(1);
     }
 
     con=mysql_real_connect(con,m_url.c_str(),m_user.c_str(),m_password.c_str(),m_databaseName.c_str(),port, nullptr,0);
     if(con== nullptr){
       LOG_ERROR("MySQL Error");
+      exit(1);
     }
     connList.push_back(con);
     ++m_free_con;
   }
   m_max_con=m_free_con;
-
-  sem_init(&reserve,0,max_con);
-
+//  sem_init(&reserve,0,max_con);
+  reserve = sem(m_free_con);
 }
 connection_pool *connection_pool::GetInstance() {
 
@@ -62,11 +63,13 @@ connection_pool::~connection_pool() {
   DestroyPool();
 }
 MYSQL *connection_pool::getConnection() {
-  if(connList.empty()) return nullptr;
-  sem_wait(&reserve);
-  lock.lock();
 
   MYSQL *con= nullptr;
+  if(connList.empty()) return nullptr;
+  reserve.wait();
+  lock.lock();
+
+
   con=connList.front();
   connList.pop_front();
   --m_free_con;
@@ -83,7 +86,7 @@ bool connection_pool::releaseConnection(MYSQL *con) {
   ++m_free_con;
   --m_cur_con;
   lock.unlock();
-  sem_post(&reserve);
+  reserve.post();
   return true;
 }
 int connection_pool::getFreeCon() const {

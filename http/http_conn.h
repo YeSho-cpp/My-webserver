@@ -97,7 +97,7 @@ private:
   bool process_write(HTTP_CODE ret);
 public:
   static int m_epoll_fd;
-  static int m_use_count;
+  static int m_user_count;
   MYSQL *mysql;
   int m_state; // 0 读 1 写
 private:

@@ -1,30 +1,43 @@
 
-#include "CGlmysql/sql_connection_pool.h"
-#include "log/log.h"
-#include <csignal>
-#include <fcntl.h>
-#include <iostream>
-#include <map>
-#include <sys/uio.h>
-#include <thread>
-#include <unistd.h>
+#include "config/config.h"
 using namespace std;
 
 
 
 int main(int argc,char *argv[]) {
 
-  char *name="yehso";
-  char *password="701121";
-  char *sql_insert = (char *)malloc(sizeof(char) * 200);
-  strcpy(sql_insert, "INSERT INTO user(username, passwd) VALUES(");
-  strcat(sql_insert, "'");
-  strcat(sql_insert, name);
-  strcat(sql_insert, "', '");
-  strcat(sql_insert, password);
-  strcat(sql_insert, "')");
-  cou
+  //需要修改的数据库信息,登录名,密码,库名
+  string user = "root";
+  string passwd = "701121";
+  string databasename = "WebTest";
 
+  //命令行解析
+  Config config;
+  config.parse_arg(argc, argv);
+
+  Webserver server;
+
+  server.init(config.PORT,user,passwd,databasename,config.LOGWrite,config.OPT_LINGER,config.TRIGMode,config.sql_num,config.thread_num,config.close_log,config.actor_model);
+
+  //日志
+  server.log_write();
+
+  //数据库
+  server.sql_pool();
+
+  //线程池
+  server.threadPool();
+
+  //触发模式
+  server.trig_mode();
+
+  //监听
+  server.eventListen();
+
+  //运行
+  server.eventLoop();
+
+  return 0;
 
 }
 

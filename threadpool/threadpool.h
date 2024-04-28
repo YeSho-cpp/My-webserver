@@ -14,7 +14,7 @@ using namespace std;
 template<class T>
 class thread_pool{
 public:
-  thread_pool(int actor_mode,connection_pool* connPool,int thread_num=8,int max_quest=1000);
+  thread_pool(int actor_mode,connection_pool* connPool,int thread_num=8,int max_quest=10000);
   ~thread_pool();
   bool append(T *request,int state);
   bool append_p(T *request);
@@ -121,7 +121,7 @@ thread_pool<T>::thread_pool(int actor_mode, connection_pool *connPool, int threa
   if(thread_num<=0||max_quest<=0) {
     throw std::exception();
   }
-  m_threads=new pthread_t[thread_num];
+  m_threads=new pthread_t[m_thread_num];
 
   for(int i=0;i<thread_num;++i){
     if(pthread_create(m_threads+i, nullptr,worker,this)!=0)
