@@ -8,12 +8,13 @@
 #include "../lock/lock.h"
 #include "../log/log.h"
 #include "../threadpool/threadpool.h"
+#include "../timer/lst_timer.h"
+#include <map>
 #include <netinet/in.h>
 #include <sys/epoll.h>
-#include <map>
-#include <sys/stat.h>
 #include <sys/fcntl.h>
 #include <sys/mman.h>
+#include <sys/stat.h>
 #include <sys/uio.h>
 
 class http_conn{
@@ -58,8 +59,8 @@ public:
   };
 
 public:
-  http_conn() {}
-  ~http_conn() {}
+  http_conn() = default;
+  ~http_conn() = default;
 
 public:
   void init(int sockfd, const sockaddr_in &addr, char *root, int TRIGMode,int close_log, string user, string passwd, string sqlname);
@@ -67,14 +68,15 @@ public:
   void process();
   bool read_once();
   bool write();
+
   sockaddr_in *get_address(){
     return &m_address;
   }
 
   void initmysql_result(connection_pool *connPool);
 
-  int timer_flag;
-  int improv;
+  int timer_flag{};
+  int improv{};
 
 private:
   void unmap();
@@ -95,44 +97,47 @@ private:
   bool add_linger();
   bool add_blank_line();
   bool process_write(HTTP_CODE ret);
+
 public:
   static int m_epoll_fd;
   static int m_user_count;
-  MYSQL *mysql;
-  int m_state; // 0 读 1 写
+  MYSQL *mysql{};
+  int m_state{}; // 0 读 1 写
 private:
-  int m_sock_fd;
-  sockaddr_in m_address;
-  int m_TRIGMode; // 触发模式
-  char *m_file_address; // 请求文件被mmap到内存中的位置
-  char m_read_buf[READ_BUFFER_SIZE];
-  int m_read_idx;
-  int m_check_idx;
-  char m_write_buf[WRITE_BUFFER_SIZE];
-  int m_write_idx;
-  int m_start_line;
-  char m_real_file[FILENAME_LEN];
-  char* doc_root; // 服务器上用于存放网页文件的根目录的路径
+  int m_sock_fd{};
+  sockaddr_in m_address{};
+  int m_TRIGMode{}; // 触发模式
+  char *m_file_address{}; // 请求文件被mmap到内存中的位置
+  char m_read_buf[READ_BUFFER_SIZE]{};
+  int m_read_idx{};
+  int m_check_idx{};
+  char m_write_buf[WRITE_BUFFER_SIZE]{};
+  int m_write_idx{};
+  int m_start_line{};
+  char m_real_file[FILENAME_LEN]{};
+  char* doc_root{}; // 服务器上用于存放网页文件的根目录的路径
   CHECK_STATE m_check_state;
   METHOD m_method;
-  char *m_url;
-  char *m_version;
-  char *m_host;
-  struct stat m_file_stat; // 目标文件的状态信息
-  struct iovec m_iv[2]; // 用于writev操作的结构体数组。
-  int m_iv_count; // 被用于输出的iovec结构体数量
-  int cgi; //是否启用的POST
-  char* m_string; //存储请求体数据
-  int m_close_log;
-  char sql_user[100];
-  char sql_password[100];
-  char sql_name[100];
-  int bytes_to_send;
-  int bytes_has_send;
+  char *m_url{};
+  char *m_version{};
+  char *m_host{};
+  struct stat m_file_stat{}; // 目标文件的状态信息
+  struct iovec m_iv[2]{}; // 用于writev操作的结构体数组。
+  int m_iv_count{}; // 被用于输出的iovec结构体数量
+  int cgi{}; //是否启用的POST
+  char* m_string{}; //存储请求体数据
+  int m_close_log{};
+  char sql_user[100]{};
+  char sql_password[100]{};
+  char sql_name[100]{};
+  int bytes_to_send{};
+  int bytes_has_send{};
   // 用户信息和数据库配置
   map<string,string>m_users;
-  bool m_linger; // 是否保持连接
-  long m_content_length;
+  bool m_linger{}; // 是否保持连接
+  long m_content_length{};
+
+
 };
 
 

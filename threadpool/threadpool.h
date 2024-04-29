@@ -57,7 +57,6 @@ void thread_pool<T>::run() {
           request->improv=1;
           request->timer_flag=1;
         }
-
       }
       else{ // 写模式
         if(request->write()){

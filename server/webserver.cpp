@@ -252,7 +252,7 @@ void Webserver::deal_timer(util_timer *timer, int sockfd) {
 }
 void Webserver::dealwithread(int sockfd) {
   util_timer *timer=user_timer[sockfd].timer;
-  if(m_TRIGMode==1){ //reactor
+  if(m_actormodel==1){ //reactor
     if(timer){
       adjust_timer(timer);
     }

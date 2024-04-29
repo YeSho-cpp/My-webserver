@@ -103,7 +103,6 @@ void Log::write_log(int level,const char *format,...) {
   log_str=m_buf;
   m_mutex.unlock();
   if(m_is_async&&!m_block_queue->full()){ // 异步
-
     m_block_queue->push(log_str);
   }
   else{    // 同步

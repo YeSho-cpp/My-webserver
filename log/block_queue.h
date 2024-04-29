@@ -17,7 +17,6 @@ public:
     if(maxsize<=0){
       exit(-1);
     }
-
     m_size=0;
     m_maxsize=maxsize;
     m_array=new T[maxsize];
@@ -27,9 +26,7 @@ public:
 
   ~block_queue(){
     m_lock.lock();
-    if(m_array!= nullptr){
-      delete[] m_array;
-    }
+    delete[] m_array;
     m_lock.unlock();
   }
 

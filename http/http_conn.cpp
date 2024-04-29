@@ -72,6 +72,7 @@ void http_conn::init(int sockfd, const sockaddr_in &addr, char *root, int TRIGMo
   m_close_log=close_log;
   addfd(m_epoll_fd,m_sock_fd,true,TRIGMode);
   m_user_count++;
+  //当浏览器出现连接重置时，可能是网站根目录出错或http响应格式出错或者访问的文件中内容完全为空
   doc_root=root;
   strcpy(sql_user,user.c_str());
   strcpy(sql_password,passwd.c_str());
@@ -426,12 +427,11 @@ http_conn::HTTP_CODE http_conn::do_request() {
   }
 
 
-  if (stat(m_real_file, &m_file_stat) < 0)
+  if (stat(m_real_file, &m_file_stat) < 0) // 这里<0就代表文件不存在了
   {
 
     return NO_RESOURCE;
   }
-
 
   if (!(m_file_stat.st_mode & S_IROTH))  // S_IROTH，即是否设置了其他（other）用户的读权限
     return FORBIDDEN_REQUEST;
