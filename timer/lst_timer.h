@@ -113,6 +113,4 @@ public:
 
 void cb_func(client_data *uer_data);
 
-
-
 #endif//WEBSERVER_LST_TIMER_H
